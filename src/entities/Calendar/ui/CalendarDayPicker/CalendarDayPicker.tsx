@@ -1,8 +1,6 @@
 import { memo, useCallback, useLayoutEffect, useRef } from 'react';
 import styled from 'styled-components';
 
-import { scrollIntoView } from '@/shared/utils';
-
 import { useCalendar } from '../../model';
 import { CalendarActionKind } from '../../model/models';
 import { DayCard } from './DayCard';
@@ -10,7 +8,7 @@ import { DayCard } from './DayCard';
 const Wrapper = styled.div`
   display: flex;
   width: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
 `;
 
 const CalendarDayPickerView = () => {
@@ -19,14 +17,22 @@ const CalendarDayPickerView = () => {
     dispatch,
   } = useCalendar();
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const focusRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    scrollIntoView(focusRef, {
-      behavior: 'smooth',
-      inline: 'center',
-      block: 'center',
-    });
+    if (focusRef.current && wrapperRef.current) {
+      const wr = wrapperRef.current;
+      const el = focusRef.current;
+
+      const halfContainerWidth = wr.getBoundingClientRect().width / 2;
+
+      wr.scrollTo({
+        behavior: 'smooth',
+        left: el.offsetLeft - halfContainerWidth,
+        top: 0,
+      });
+    }
   }, [selectedDay]);
 
   const selectDay = useCallback(
@@ -37,7 +43,7 @@ const CalendarDayPickerView = () => {
   );
 
   return (
-    <Wrapper>
+    <Wrapper ref={wrapperRef}>
       {daysOfMonth.map((day) => (
         <div key={day} ref={day === selectedDay ? focusRef : null}>
           <DayCard

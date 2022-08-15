@@ -8,6 +8,9 @@ const Cell = styled.div<{
   isActiveEvent: boolean;
   hasEvent: boolean;
 }>`
+  width: 48px;
+  min-width: 48px;
+  height: 40px;
   display: flex;
   justify-content: center;
   align-items: center;

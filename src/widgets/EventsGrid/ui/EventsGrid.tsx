@@ -4,7 +4,6 @@ import styled from 'styled-components';
 
 import { calendarModel } from '@/entities/Calendar';
 import { EventsActionKind, eventsModel } from '@/entities/Event';
-import { scrollIntoView } from '@/shared/utils';
 
 import { useGeneratedEventsGrid } from '../model';
 import { EventsGridCell } from './EventsGreedCell';
@@ -12,23 +11,25 @@ import { EventsGridCell } from './EventsGreedCell';
 const Wrapper = styled.div`
   width: 100%;
   display: flex;
+  position: relative;
 `;
 
-const Grid = styled.div<{ columns: number }>`
-  display: grid;
-  grid-template-columns: repeat(${(props) => props.columns}, 48px);
-  grid-template-rows: repeat(24, 40px);
-  width: 100%;
+const Column = styled.div<{ width?: string; sticky?: boolean }>`
+  display: flex;
+  flex-direction: column;
   overflow-x: hidden;
+  width: ${(props) => props.width ?? '100%'};
+  ${(props) => (props.sticky ? 'position: sticky; left: 0; z-index: 10;' : '')};
 `;
 
-const Column = styled.div`
-  display: grid;
-  grid-template-columns: 48px;
-  grid-template-rows: repeat(24, 40px);
+const Row = styled.div`
+  display: flex;
+  width: 100%;
 `;
 
 const HourCell = styled.div`
+  width: 3rem;
+  height: 2.5rem;
   display: flex;
   z-index: 10;
   justify-content: center;
@@ -67,41 +68,51 @@ const EventsGridView = () => {
     [dispatch],
   );
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const focusRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    scrollIntoView(focusRef, {
-      behavior: 'smooth',
-      inline: 'center',
-      block: 'center',
-    });
+    if (focusRef.current && wrapperRef.current) {
+      const wr = wrapperRef.current;
+      const el = focusRef.current;
+
+      const halfContainerWidth = wr.getBoundingClientRect().width / 2;
+
+      wr.scrollTo({
+        behavior: 'smooth',
+        left: el.offsetLeft - halfContainerWidth,
+        top: 0,
+      });
+    }
   }, [selectedDay]);
 
   return (
     <Wrapper>
-      <Column>
+      <Column sticky width='48px'>
         {grid.map((_, i) => (
           <HourCell key={i}>
             <p>{`${i + 1 < 10 ? `0${i}` : i}:00`}</p>
           </HourCell>
         ))}
       </Column>
-      <Grid columns={daysOfMonth.length}>
-        {grid.map((row, i) =>
-          row.map((cell, j) => (
-            <EventsGridCell
-              columns={daysOfMonth.length}
-              eventId={cell}
-              isActiveEvent={activeEventId === cell}
-              key={`x${j}_y${i}`}
-              ref={i === 0 && j + 1 === selectedDay ? focusRef : null}
-              x={j}
-              y={i}
-              onSelect={selectEvent}
-            />
-          )),
-        )}
-      </Grid>
+      <Column ref={wrapperRef}>
+        {grid.map((row, i) => (
+          <Row key={i}>
+            {row.map((cell, j) => (
+              <EventsGridCell
+                columns={daysOfMonth.length}
+                eventId={cell}
+                isActiveEvent={activeEventId === cell}
+                key={`x${j}_y${i}`}
+                ref={i === 0 && j + 1 === selectedDay ? focusRef : null}
+                x={j}
+                y={i}
+                onSelect={selectEvent}
+              />
+            ))}
+          </Row>
+        ))}
+      </Column>
     </Wrapper>
   );
 };
