@@ -29,7 +29,6 @@ export default defineConfig({
           'react-vendor': ['react', 'react-dom'],
         },
       },
-      external: ['react-is'],
     },
   },
   server: {
