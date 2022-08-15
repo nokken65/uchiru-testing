@@ -18,18 +18,16 @@ const CalendarDayPickerView = () => {
   } = useCalendar();
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const focusRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    if (focusRef.current && wrapperRef.current) {
-      const wr = wrapperRef.current;
-      const el = focusRef.current;
+    if (wrapperRef.current) {
+      const halfContainerWidth =
+        wrapperRef.current.getBoundingClientRect().width / 2;
+      const offsetLeft = (selectedDay - 1) * 48 - halfContainerWidth + 24;
 
-      const halfContainerWidth = wr.getBoundingClientRect().width / 2;
-
-      wr.scrollTo({
+      wrapperRef.current.scrollTo({
         behavior: 'smooth',
-        left: el.offsetLeft - halfContainerWidth,
+        left: offsetLeft,
         top: 0,
       });
     }
@@ -45,13 +43,12 @@ const CalendarDayPickerView = () => {
   return (
     <Wrapper ref={wrapperRef}>
       {daysOfMonth.map((day) => (
-        <div key={day} ref={day === selectedDay ? focusRef : null}>
-          <DayCard
-            day={day}
-            isSelected={day === selectedDay}
-            onSelect={selectDay}
-          />
-        </div>
+        <DayCard
+          day={day}
+          isSelected={day === selectedDay}
+          key={day}
+          onSelect={selectDay}
+        />
       ))}
     </Wrapper>
   );

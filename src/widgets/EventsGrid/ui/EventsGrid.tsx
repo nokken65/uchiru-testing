@@ -14,12 +14,21 @@ const Wrapper = styled.div`
   position: relative;
 `;
 
-const Column = styled.div<{ width?: string; sticky?: boolean }>`
+const Column = styled.div`
   display: flex;
   flex-direction: column;
+  width: 48px;
+  position: sticky;
+  left: 0;
+  z-index: 10;
+`;
+
+const Grid = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: calc(100% - 48px);
   overflow-x: hidden;
-  width: ${(props) => props.width ?? '100%'};
-  ${(props) => (props.sticky ? 'position: sticky; left: 0; z-index: 10;' : '')};
 `;
 
 const Row = styled.div`
@@ -69,18 +78,16 @@ const EventsGridView = () => {
   );
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const focusRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    if (focusRef.current && wrapperRef.current) {
-      const wr = wrapperRef.current;
-      const el = focusRef.current;
+    if (wrapperRef.current) {
+      const halfContainerWidth =
+        wrapperRef.current.getBoundingClientRect().width / 2;
+      const offsetLeft = (selectedDay - 1) * 48 - halfContainerWidth + 24;
 
-      const halfContainerWidth = wr.getBoundingClientRect().width / 2;
-
-      wr.scrollTo({
+      wrapperRef.current.scrollTo({
         behavior: 'smooth',
-        left: el.offsetLeft - halfContainerWidth,
+        left: offsetLeft,
         top: 0,
       });
     }
@@ -88,14 +95,14 @@ const EventsGridView = () => {
 
   return (
     <Wrapper>
-      <Column sticky width='48px'>
+      <Column>
         {grid.map((_, i) => (
           <HourCell key={i}>
             <p>{`${i + 1 < 10 ? `0${i}` : i}:00`}</p>
           </HourCell>
         ))}
       </Column>
-      <Column ref={wrapperRef}>
+      <Grid ref={wrapperRef}>
         {grid.map((row, i) => (
           <Row key={i}>
             {row.map((cell, j) => (
@@ -104,7 +111,6 @@ const EventsGridView = () => {
                 eventId={cell}
                 isActiveEvent={activeEventId === cell}
                 key={`x${j}_y${i}`}
-                ref={i === 0 && j + 2 === selectedDay ? focusRef : null}
                 x={j}
                 y={i}
                 onSelect={selectEvent}
@@ -112,7 +118,7 @@ const EventsGridView = () => {
             ))}
           </Row>
         ))}
-      </Column>
+      </Grid>
     </Wrapper>
   );
 };

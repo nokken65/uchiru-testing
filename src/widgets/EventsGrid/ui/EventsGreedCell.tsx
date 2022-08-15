@@ -1,4 +1,4 @@
-import { forwardRef, memo } from 'react';
+import { memo } from 'react';
 import styled from 'styled-components';
 
 const Cell = styled.div<{
@@ -57,21 +57,25 @@ type EventsGridCellProps = {
   onSelect: (eventId: string) => void;
 };
 
-const EventsGridCellView = forwardRef<HTMLDivElement, EventsGridCellProps>(
-  ({ eventId, columns, x, y, isActiveEvent, onSelect }, ref) => {
-    return (
-      <Cell
-        columns={columns}
-        hasEvent={!!eventId}
-        isActiveEvent={isActiveEvent}
-        ref={ref}
-        role='cell'
-        x={x}
-        y={y}
-        onClick={() => onSelect(eventId ?? '')}
-      />
-    );
-  },
-);
+const EventsGridCellView = ({
+  eventId,
+  columns,
+  x,
+  y,
+  isActiveEvent,
+  onSelect,
+}: EventsGridCellProps) => {
+  return (
+    <Cell
+      columns={columns}
+      hasEvent={!!eventId}
+      isActiveEvent={isActiveEvent}
+      role='cell'
+      x={x}
+      y={y}
+      onClick={() => onSelect(eventId ?? '')}
+    />
+  );
+};
 
 export const EventsGridCell = memo(EventsGridCellView);
