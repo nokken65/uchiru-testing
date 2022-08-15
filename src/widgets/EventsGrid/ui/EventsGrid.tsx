@@ -104,7 +104,7 @@ const EventsGridView = () => {
                 eventId={cell}
                 isActiveEvent={activeEventId === cell}
                 key={`x${j}_y${i}`}
-                ref={i === 0 && j + 1 === selectedDay ? focusRef : null}
+                ref={i === 0 && j + 2 === selectedDay ? focusRef : null}
                 x={j}
                 y={i}
                 onSelect={selectEvent}
